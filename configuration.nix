@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
-{
+let 
+  unstable = import <unstable> {};
+in {
   imports = [ ./hardware-configuration.nix ];
 
   nixpkgs.config.allowUnfree = true;
@@ -32,28 +34,39 @@
     enableFontDir = true;
     enableGhostscriptFonts = true;
     fonts = with pkgs; [
+      hack-font
+      hasklig
       inconsolata-lgc
       inconsolata
       ubuntu_font_family
+      nerdfonts
     ];
   };
 
   environment.systemPackages = with pkgs; [
     audacity
+    clipit
     emacs
+    dmenu
+    dbus
     feh
     firefox
-    ghc
     git
     rxvt_unicode
     pavucontrol
     psmisc
+    taffybar 
     qutebrowser
-    taffybar
     vim
     wget
     xorg.xmodmap
-    xorg.xev
+    xorg.xev  
+    (steam.override { extraPkgs = pkgs: with pkgs.pkgsi686Linux; [libvdpau libva-full]; })
+    
+    ghc
+    stack
+    zlib
+    
   ];
 
   programs.fish.enable = true;
@@ -75,18 +88,25 @@
 
       displayManager.lightdm.enable = true;
       displayManager.sessionCommands = 
-        ''
-          [[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
-          feh --bg-scale ~/.xmonad/background.jpg
-        ''
+        ''[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap'';
       desktopManager = {
         default = "none";
       };
 
-      windowManager.xmonad.enable = true;
-      windowManager.xmonad.enableContribAndExtras = true;
+      windowManager.xmonad = {
+        enable = true;
+        enableContribAndExtras = true;
+        extraPackages = haskellPackages: [
+          haskellPackages.dbus
+          haskellPackages.taffybar
+        ];
+      };
     };
   };
+
+  swapDevices = [
+    { device = "/swapfile"; }
+  ];
 
   system.activationScripts.etcX11sessions = ''
     echo "setting up /etc/X11/sessions..."

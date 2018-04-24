@@ -33,6 +33,7 @@ URxvt.saveLines: 10000
 #define S_cyan          #2aa198
 #define S_green         #859900
 
+
 ! black dark/light
 *color0:                S_base02
 *color8:                S_base03
@@ -66,8 +67,14 @@ URxvt.saveLines: 10000
 *color15:               S_base3
 
 ! Font (Inconsolata-LGC)
-URxvt*font: xft:Inconsolata LGC:pixelsize=15
-URxvt*boldFont: xft:Inconsolata LGC:bold:pixelsize=15
+
+#define mainFont      Inconsolata LGC
+
+URxvt*letterSpace: 0
+URxvt*font:           xft:mainFont:pixelsize=15
+URxvt*boldFont:       xft:mainFont:bold:pixelsize=15
+URxvt*italicFont:     xft:mainFont:italic:pixelsize=15
+URxvt*boldItalicFont: xft:mainFont:bold:italic:pixelsize=15
 
 ! Scrollbar
 URxvt*scrollBar: true
