@@ -11,6 +11,10 @@ import           XMonad.Layout.Reflect
 import           XMonad.Layout.Spacing
 import           XMonad.Layout.ThreeColumns
 
+import           XMonad.Util.EZConfig
+
+import           XMonad.Actions.Volume
+
 import           System.Taffybar.Hooks.PagerHints
 
 -- Solarized Colors
@@ -32,6 +36,8 @@ cyan    ="#2aa198"
 green   ="#859900"
 
 
+myModMask = mod4Mask
+
 myLayoutHook = smartBorders $
   myLayouts ||| (fullscreenFloat Full)
 
@@ -49,18 +55,29 @@ myStartupHook = do
 myManageHook = composeAll
   [ manageDocks
   , fullscreenManageHook
+  , className =? "Steam" --> doFloat
+  , className =? "steam" --> doFullFloat
   , manageHook def
   ]
 
+myKeys = 
+  [ ("M-p",                           spawn "rofi -show run"   ) 
+  , ("M-S-p",                         spawn "rofi -show window")
+  , ("M-w",                           spawn "qutebrowser")
+  , ("<XF86AudioLowerVolume>",        lowerVolume 5 >> return ())
+  , ("<XF86AudioMute>",               toggleMute    >> return ())
+  , ("<XF86AudioLowerVolume>",        raiseVolume 5 >> return ())
+  ]
+
 myConfig = def
-    { modMask = mod4Mask
+    { modMask = myModMask
     , borderWidth = 3
-    , terminal = "urxvt"
+    , terminal = "termite -e tmux"
     , focusedBorderColor = cyan
     , startupHook = myStartupHook
     , layoutHook = myLayoutHook
     , manageHook = myManageHook
     , handleEventHook = handleEventHook def <+> fullscreenEventHook
-    }
+    } `additionalKeysP` myKeys
 
 main = xmonad . docks . pagerHints . ewmh . fullscreenSupport $ myConfig
