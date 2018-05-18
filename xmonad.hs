@@ -38,8 +38,8 @@ green   ="#859900"
 
 myModMask = mod4Mask
 
-myLayoutHook = smartBorders $
-  myLayouts ||| (fullscreenFloat Full)
+myLayoutHook = (smartBorders $
+  myLayouts) ||| (noBorders $ fullscreenFloat Full)
 
 myLayouts = avoidStruts $ spacingWithEdge 15 $
   ThreeCol 1 (3/100) (3/5)
@@ -49,24 +49,24 @@ myLayouts = avoidStruts $ spacingWithEdge 15 $
   ||| (reflectHoriz $ Tall 1 (3/100) (3/5))
 
 myStartupHook = do
-   spawn "~/.fehbg"
+   spawn "feh --bg-fill --no-fehbg ~/background.png "
    spawn "taffybar &"
 
 myManageHook = composeAll
   [ manageDocks
   , fullscreenManageHook
-  , className =? "Steam" --> doFloat
-  , className =? "steam" --> doFullFloat
   , manageHook def
   ]
 
 myKeys = 
   [ ("M-p",                           spawn "rofi -show run"   ) 
   , ("M-S-p",                         spawn "rofi -show window")
-  , ("M-w",                           spawn "qutebrowser")
+  , ("M-b",                           spawn "qutebrowser")
+  , ("M-S-b",                         spawn "firefox")
+  , ("M-<Return>",                       spawn "termite")
   , ("<XF86AudioLowerVolume>",        lowerVolume 5 >> return ())
   , ("<XF86AudioMute>",               toggleMute    >> return ())
-  , ("<XF86AudioLowerVolume>",        raiseVolume 5 >> return ())
+  , ("<XF86AudioRaiseVolume>",        raiseVolume 5 >> return ())
   ]
 
 myConfig = def

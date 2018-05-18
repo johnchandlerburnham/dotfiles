@@ -2,6 +2,14 @@
 
 let 
   unstable = import <unstable> {};
+  emacs = pkgs.stdenv.lib.overrideDerivation pkgs.emacs (oldAttrs : {
+    version = "26.1RC1";
+    src = pkgs.fetchurl {
+      url = "ftp://alpha.gnu.org/gnu/emacs/pretest/emacs-26.1-rc1.tar.xz";
+      sha256 = "6594e668de00b96e73ad4f168c897fe4bca7c55a4caf19ee20eac54b62a05758";
+    };
+    patches = [];
+  });
 in {
   imports = [ ./hardware-configuration.nix ];
 
@@ -11,14 +19,22 @@ in {
   boot.loader.grub = {
     enable = true;
     version = 2;
-    gfxmodeBios="2560x1440";
-    extraConfig="set gfxpayload=keep"; 
-    device = "/dev/sda"; 
+    gfxmodeBios="1900x1200";
+    extraConfig=
+    ''
+    set gfxpayload=keep
+    '';
+    device = "/dev/sda";
   };
+
+  #boot.initrd.kernelModules = [ "fbcon" ];
+  boot.kernelParams = [ "fbcon=rotate:1" ];
+  boot.extraModulePackages = [
+    pkgs.linuxPackages.nvidia_x11
+  ];
 
   networking = {
     hostName = "daphne";
-    #wireless.enable = true; 
     networkmanager.enable = true;
   };
 
@@ -29,7 +45,7 @@ in {
   };
 
   time.timeZone = "America/New_York";
-  
+
   fonts ={
     enableFontDir = true;
     enableGhostscriptFonts = true;
@@ -41,7 +57,13 @@ in {
       ubuntu_font_family
       nerdfonts
     ];
+    fontconfig.defaultFonts.monospace = [
+      "Inconsolata Nerd Font"
+      "Inconsolata LGC"
+      "Inconsolata"
+    ];
   };
+
 
   environment.systemPackages = with pkgs; [
     audacity
@@ -49,27 +71,42 @@ in {
     emacs
     dmenu
     dbus
+    emacs
     feh
     firefox
     git
     rxvt_unicode
+    rofi
+    oh-my-zsh
     pavucontrol
     psmisc
-    taffybar 
+    taffybar
+    termite
+    tmux
     qutebrowser
     vim
+    neovim
     wget
     xorg.xmodmap
-    xorg.xev  
+    xorg.xev
+    xorg.libXinerama
     (steam.override { extraPkgs = pkgs: with pkgs.pkgsi686Linux; [libvdpau libva-full]; })
-    
     ghc
     stack
     zlib
-    
+    zsh
   ];
 
-  programs.fish.enable = true;
+
+  programs.zsh = {
+    enable = true;
+    enableAutosuggestions = true;
+    enableCompletion = true;
+    syntaxHighlighting.enable = true;
+    ohMyZsh = {
+      enable = true;
+    };
+  };
 
   sound.enable = true;
   hardware.pulseaudio.enable = true;
@@ -83,12 +120,24 @@ in {
 
     xserver = {
       enable = true;
+      config = 
+      ''
+       Section "Monitor"
+         Identifier "HDMI-0"
+         Option     "Rotate" "right"
+       EndSection
+
+       Section "Monitor"
+         Identifier "DP-0"
+         Option     "RightOf" "HDMI-0"
+         Option     "Primary" "true"
+       EndSection
+      '';
+
       layout = "us";
       videoDrivers = [ "nvidia" ];
 
       displayManager.lightdm.enable = true;
-      displayManager.sessionCommands = 
-        ''[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap'';
       desktopManager = {
         default = "none";
       };
@@ -122,7 +171,7 @@ in {
     extraGroups = [ 
       "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal"
     ];
-    shell = pkgs.fish;
+    shell = pkgs.zsh;
     uid = 1000;
   };
 

@@ -12,6 +12,7 @@ antigen bundle dirhistory
 antigen bundle node
 antigen bundle npm
 antigen bundle python
+antigen bundle pass
 antigen bundle ssh-agent
 antigen bundle systemd
 antigen bundle tmux
@@ -21,6 +22,7 @@ antigen bundle wd
 antigen bundle joel-porquet/zsh-dircolors-solarized.git
 
 antigen apply
+
 
 #SPACESHIP_PROMPT_ADD_NEWLINE=false
 SPACESHIP_USER_SHOW=always
@@ -49,12 +51,6 @@ SPACESHIP_PROMPT_ORDER=(
   exit_code     # Exit code section
   char          # Prompt character
 )
-
-
-export EDITOR='nvim'
-export VISUAL='nvim'
-alias e='nvim'
-
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
