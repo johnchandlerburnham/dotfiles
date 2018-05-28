@@ -15,6 +15,7 @@ import           XMonad.Util.EZConfig
 
 import           XMonad.Actions.Volume
 
+import           Control.Monad
 import           System.Taffybar.Hooks.PagerHints
 
 -- Solarized Colors
@@ -38,15 +39,14 @@ green   ="#859900"
 
 myModMask = mod4Mask
 
-myLayoutHook = (smartBorders $
-  myLayouts) ||| (noBorders $ fullscreenFloat Full)
+myLayoutHook = smartBorders myLayouts ||| noBorders (fullscreenFloat Full)
 
 myLayouts = avoidStruts $ spacingWithEdge 15 $
   ThreeCol 1 (3/100) (3/5)
   ||| ThreeColMid 1 (3/100) (3/5)
-  ||| (reflectHoriz $ ThreeCol 1 (3/100) (3/5))
+  ||| reflectHoriz (ThreeCol 1 (3/100) (3/5))
   ||| Tall 1 (3/100) (3/5)
-  ||| (reflectHoriz $ Tall 1 (3/100) (3/5))
+  ||| reflectHoriz (Tall 1 (3/100) (3/5))
 
 myStartupHook = do
    spawn "feh --bg-fill --no-fehbg ~/background.png "
@@ -58,15 +58,15 @@ myManageHook = composeAll
   , manageHook def
   ]
 
-myKeys = 
-  [ ("M-p",                           spawn "rofi -show run"   ) 
+myKeys =
+  [ ("M-p",                           spawn "rofi -show run"   )
   , ("M-S-p",                         spawn "rofi -show window")
   , ("M-b",                           spawn "qutebrowser")
   , ("M-S-b",                         spawn "firefox")
-  , ("M-<Return>",                       spawn "termite")
-  , ("<XF86AudioLowerVolume>",        lowerVolume 5 >> return ())
-  , ("<XF86AudioMute>",               toggleMute    >> return ())
-  , ("<XF86AudioRaiseVolume>",        raiseVolume 5 >> return ())
+  , ("M-<Return>",                    spawn "termite")
+  , ("<XF86AudioLowerVolume>",        void $ lowerVolume 5)
+  , ("<XF86AudioMute>",               void toggleMute)
+  , ("<XF86AudioRaiseVolume>",        void $ raiseVolume 5)
   ]
 
 myConfig = def
