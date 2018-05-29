@@ -2,7 +2,7 @@
 " Author: John C. Burnham (jcb@johnchandlerburnham.com)
 " Date: 2018-5-25
 "==============================================================================
-
+"
 "------------------------------------------------------------------------------
 " Plugins (with vim-plug) and plugin configuration
 "------------------------------------------------------------------------------
@@ -44,8 +44,8 @@ set background=light          " in their light background variation
 
 " Filetype options
 filetype on                   " detect filetype for syntax highlighting
-filetype plugin off           " but don't load filetype plugins
-filetype indent off           " and don't override my indent behavior
+filetype plugin on            " load filetype plugins
+filetype indent off           " but don't override my indent behavior
 
 " Turn tabs into 2 spaces
 set expandtab                 " Always insert spaces instead of a Tab
@@ -72,8 +72,9 @@ set textwidth=80              " Lines are 80 characters long
 set wrap                      " wrap lines that go off screen
 set linebreak                 " try to break wrapped lines in between words
 set autoindent                " preserve indent at level of previous line
+set formatoptions+=tqn
 
-" Status line
+" Status line jj k
 set showcmd                   " Show commands in lower right corner
 set laststatus=2              " Always show status line
 
@@ -93,6 +94,94 @@ set backupdir=~/.vim/backup// " and backup in own directory
   " of the file will be used to build the swap/undo/backup files. This means
   " that e.g. '~/projectA/README.md' and '~/projectB/README.md' won't overwrite
   " each others backups by both writing to '~/.vim/backup/README.md'
+
+  " Further Note: Vim has a bug in the 'backupdir' setting, and the '//'
+  " actually does nothing for backup files (but does work for swp and undo). The
+  " bug was reported in 2015 (https://github.com/vim/vim/issues/179), and is
+  " still unresolved. When dealing with software, we must always remember the
+  " Berra-Savitch Praxis Theorems:
+  "
+  " Theorem I:   'In theory, there is no difference between theory and practice.
+  " Theorem II:  'In practice, there is.
+  " Theorem III: 'The Berra-Savitch Praxis Theorems constitute a theory.
+  "
+  " In practice, we can get around this bug with some funky awesomeness. Or
+  " awfulness, depending on your taste for VimScript.
+
+  " First, let's declare our backup directory as a global variable:
+
+let g:backup_dir='~/.vim/backup'
+
+  " and let's check if the directory exists, and let's make it if it doesn't
+  "
+if !filewritable(expand(g:backup_dir))
+  silent execute expand('!mkdir ' . g:backup_dir)
+endif
+
+  " We'll do the same thing for our swap and undo directories too.
+  " it doesn't have anything to do with this bug, but it's good to do just to
+  " make sure those directories exist too
+
+let g:swap_dir='~/.vim/swp'
+if !filewritable(expand(g:swp_dir))
+  silent execute expand('!mkdir ' . g:swp_dir)
+endif
+
+let g:undo_dir='~/.vim/undodir'
+if !filewritable(expand(g:undo_dir))
+  silent execute expand('!mkdir ' . g:undo_dir)
+endif
+
+  " Okay, now all aboard the train to funkytown. Our general strategy is going
+  " to be to make a separate directory for each file so that they don't nuke
+  " each others backups.
+
+  " We're going to make an expression that will take the current path of
+  " our file (e.g. '/home/jcb/.vimrc' for this vimrc file) and turn it into
+  " a string that can work as a file or directory name (e.g. '#home#jcb#.vimrc')
+
+let g:file_dir = substitute(substitute(expand('%:p'),
+  \ "/", "#", "g"), ' ', '\\ ', 'g')
+
+  " Just to explain what this does a little bit:
+  " 1. expand('%:p') returns the full path of the file e.g. '/home/jcb/.vimrc'
+  " 2. one substitute turns all the '/' characters into '#'
+  "    (the backslash is a linebreak)
+  " 3. the other substitute turns any spaces into escaped spaces
+  "    (so 'foo bar' would become 'foo\ bar')
+  "
+  " I don't know if this does a perfect job of sanitizing the filepath
+  " (it almost certainly causes collisions if there were already '#' characters
+  " in the path beforehand), but it seems decent.
+
+  " Next, we'll join the above filename to our backup directory to make a path
+let g:file_dir_path = g:backup_dir . '/' . g:file_dir
+
+  " We'll make a directory at the path if it doesn't exist already
+if !filewritable(expand(g:file_dir_path))
+  silent execute expand('!mkdir ' . g:file_dir_path)
+endif
+
+  " And we'll set our backupdir option to that path
+execute expand('set backupdir=' . g:file_dir_path)
+
+  " This fixes the bug, but for giggles, let's add incremental backups so
+  " that we save all versions of our files. I hate hate hate losing data.
+  "
+  " This line appends the current time to name of the backup file:
+
+autocmd BufWritePre * let &backupext = '~' . strftime("%F_%T") . '~'
+
+  " By the way, while reasearching this fix I read a bunch of people say that
+  " incremental backups are old-fashioned and that using version control like
+  " git is better. They couldn't be more wrong and I have a truly marvelous
+  " argument for this that this comment is simply too narrow to contain.
+  "
+  " But you can read the long form version here in Chapter 2 of this series on
+  " Houyhnhnm Computing by Fare Rideau:
+  " https://ngnghm.github.io/blog/2015/08/03/chapter-2-save-our-souls/
+  "
+  " The whole series is excellent.
 
 " Search and completion options
 set hlsearch                  " Persist highlights of all matches of last search
