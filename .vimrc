@@ -123,8 +123,8 @@ endif
   " make sure those directories exist too
 
 let g:swap_dir='~/.vim/swp'
-if !filewritable(expand(g:swp_dir))
-  silent execute expand('!mkdir ' . g:swp_dir)
+if !filewritable(expand(g:swap_dir))
+  silent execute expand('!mkdir ' . g:swap_dir)
 endif
 
 let g:undo_dir='~/.vim/undodir'
@@ -138,10 +138,10 @@ endif
 
   " We're going to make an expression that will take the current path of
   " our file (e.g. '/home/jcb/.vimrc' for this vimrc file) and turn it into
-  " a string that can work as a file or directory name (e.g. '#home#jcb#.vimrc')
+  " a string that can work as a file or directory name (e.g. '~home~jcb~.vimrc')
 
 let g:file_dir = substitute(substitute(expand('%:p'),
-  \ "/", "#", "g"), ' ', '\\ ', 'g')
+  \ "/", "~", "g"), ' ', '\\ ', 'g')
 
   " Just to explain what this does a little bit:
   " 1. expand('%:p') returns the full path of the file e.g. '/home/jcb/.vimrc'
@@ -172,7 +172,7 @@ execute expand('set backupdir=' . g:file_dir_path)
 
 autocmd BufWritePre * let &backupext = '~' . strftime("%F_%T") . '~'
 
-  " By the way, while reasearching this fix I read a bunch of people say that
+  " By the way, while researching this fix I read a bunch of people say that
   " incremental backups are old-fashioned and that using version control like
   " git is better. They couldn't be more wrong and I have a truly marvelous
   " argument for this that this comment is simply too narrow to contain.
