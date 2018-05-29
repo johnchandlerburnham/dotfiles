@@ -145,13 +145,13 @@ let g:file_dir = substitute(substitute(expand('%:p'),
 
   " Just to explain what this does a little bit:
   " 1. expand('%:p') returns the full path of the file e.g. '/home/jcb/.vimrc'
-  " 2. one substitute turns all the '/' characters into '#'
+  " 2. one substitute turns all the '/' characters into '~'
   "    (the backslash is a linebreak)
   " 3. the other substitute turns any spaces into escaped spaces
   "    (so 'foo bar' would become 'foo\ bar')
-  "
+
   " I don't know if this does a perfect job of sanitizing the filepath
-  " (it almost certainly causes collisions if there were already '#' characters
+  " (it almost certainly causes collisions if there were already '~' characters
   " in the path beforehand), but it seems decent.
 
   " Next, we'll join the above filename to our backup directory to make a path
@@ -176,11 +176,11 @@ autocmd BufWritePre * let &backupext = '~' . strftime("%F_%T") . '~'
   " incremental backups are old-fashioned and that using version control like
   " git is better. They couldn't be more wrong and I have a truly marvelous
   " argument for this that this comment is simply too narrow to contain.
-  "
+
   " But you can read the long form version here in Chapter 2 of this series on
   " Houyhnhnm Computing by Fare Rideau:
   " https://ngnghm.github.io/blog/2015/08/03/chapter-2-save-our-souls/
-  "
+
   " The whole series is excellent.
 
 " Search and completion options
