@@ -2,7 +2,7 @@
 " Author: John C. Burnham (jcb@johnchandlerburnham.com)
 " Date: 2018-5-25
 "==============================================================================
-"
+
 "------------------------------------------------------------------------------
 " Plugins (with vim-plug) and plugin configuration
 "------------------------------------------------------------------------------
@@ -21,6 +21,11 @@ Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 Plug 'dhruvasagar/vim-table-mode'
 
+" Language Specific plugins
+
+Plug 'idris-hackers/idris-vim'
+Plug 'raichoo/purescript-vim'
+
 call plug#end()
 
 " Netrw (built-in file tree browser)
@@ -32,6 +37,10 @@ let g:netrw_browse_split=4    " open files in previous window
 " Vim-Markdown
 let g:vim_markdown_math=1     " enable LaTeX and YAML syntax extensions
 let g:vim_markdown_frontmatter= 1
+let g:table_mode_corner='|'
+let g:vim_markdown_fenced_languages = ['haskell=haskell']
+let g:vim_markdown_no_extensions_in_markdown = 1
+let g:vim_markdown_autowrite = 1
 
 "------------------------------------------------------------------------------
 " Vim Options
@@ -55,7 +64,7 @@ set shiftwidth=2              " Indents are 2 spaces for e.g. shifting with '>'
 
 " Invisible characters
 set list                      " Show invisibles
-set showbreak=↪               " Show breaks when long lines wrap
+set showbreak=↪\              " Show breaks when long lines wrap
 set listchars=tab:→\ ,nbsp:␣,trail:•,extends:⟩,precedes:⟨
 
   " Note: nbsp is a non-breaking space character (Unicode has a bunch of these,
@@ -72,9 +81,16 @@ set textwidth=80              " Lines are 80 characters long
 set wrap                      " wrap lines that go off screen
 set linebreak                 " try to break wrapped lines in between words
 set autoindent                " preserve indent at level of previous line
-set formatoptions+=tqn
 
-" Status line jj k
+set formatoptions+=tqn        " textwidth autowrap, gq comments & num lists
+set formatoptions-=o          " don't insert comment leader after 'o' or 'O'
+
+  " Note: This doesn't work when we're in a file that has a filetype plugin that
+  " overrides my settings, so I have to force it in an ugly way with an autocmd.
+  " I don't want to force the text-width autowrap though.
+autocmd FileType * set fo+=qn fo-=o
+
+" Status line
 set showcmd                   " Show commands in lower right corner
 set laststatus=2              " Always show status line
 
@@ -86,9 +102,9 @@ set splitright                " open new vertical splits below current split
 set swapfile                  " Even before saving, store all changes and edits
 set undofile                  " Save undos so they persist between sessions
 set backup                    " When overwriting a file, save previous version
-set directory=~/.vim/swp//    " swap files in own directory
+set directory=~/.vim/swp//    "  swap files in own directory
 set undodir=~/.vim/undodir//  " undo files in own directory
-set backupdir=~/.vim/backup// " and backup in own directory
+" set backupdir=~/.vim/backup// " and backup in own directory
 
   " Note: The '//' at the end of the above paths means that the full path
   " of the file will be used to build the swap/undo/backup files. This means
@@ -101,9 +117,9 @@ set backupdir=~/.vim/backup// " and backup in own directory
   " still unresolved. When dealing with software, we must always remember the
   " Berra-Savitch Praxis Theorems:
   "
-  " Theorem I:   'In theory, there is no difference between theory and practice.
-  " Theorem II:  'In practice, there is.
-  " Theorem III: 'The Berra-Savitch Praxis Theorems constitute a theory.
+  " Theorem I:   In theory, there is no difference between theory and practice.
+  " Theorem II:  In practice, there is.
+  " Theorem III: The Berra-Savitch Praxis Theorems constitute a theory.
   "
   " In practice, we can get around this bug with some funky awesomeness. Or
   " awfulness, depending on your taste for VimScript.
@@ -111,9 +127,11 @@ set backupdir=~/.vim/backup// " and backup in own directory
   " First, let's declare our backup directory as a global variable:
 
 let g:backup_dir='~/.vim/backup'
+let g:swap_dir='~/.vim/swp'
+let g:undo_dir='~/.vim/undodir'
 
   " and let's check if the directory exists, and let's make it if it doesn't
-  "
+
 if !filewritable(expand(g:backup_dir))
   silent execute expand('!mkdir ' . g:backup_dir)
 endif
@@ -122,12 +140,10 @@ endif
   " it doesn't have anything to do with this bug, but it's good to do just to
   " make sure those directories exist too
 
-let g:swap_dir='~/.vim/swp'
 if !filewritable(expand(g:swap_dir))
   silent execute expand('!mkdir ' . g:swap_dir)
 endif
 
-let g:undo_dir='~/.vim/undodir'
 if !filewritable(expand(g:undo_dir))
   silent execute expand('!mkdir ' . g:undo_dir)
 endif
@@ -155,6 +171,7 @@ let g:file_dir = substitute(substitute(expand('%:p'),
   " in the path beforehand), but it seems decent.
 
   " Next, we'll join the above filename to our backup directory to make a path
+
 let g:file_dir_path = g:backup_dir . '/' . g:file_dir
 
   " We'll make a directory at the path if it doesn't exist already
@@ -177,11 +194,9 @@ autocmd BufWritePre * let &backupext = '~' . strftime("%F_%T") . '~'
   " git is better. They couldn't be more wrong and I have a truly marvelous
   " argument for this that this comment is simply too narrow to contain.
 
-  " But you can read the long form version here in Chapter 2 of this series on
-  " Houyhnhnm Computing by Fare Rideau:
+  " But you can read the long form version here in Chapter 2 of this excellent
+  " series on Houyhnhnm Computing by Fare Rideau:
   " https://ngnghm.github.io/blog/2015/08/03/chapter-2-save-our-souls/
-
-  " The whole series is excellent.
 
 " Search and completion options
 set hlsearch                  " Persist highlights of all matches of last search
@@ -195,6 +210,8 @@ set lazyredraw                " Only redraw when necessary for performance
 set showmatch                 " Show matching brace when inserting closing brace
 set nofoldenable              " Disable folding
 set spelllang=en              " spellcheck using an English dictionary
+set shortmess+=aI             " Shorten messages, don't show the intro message
+set ttimeoutlen=10            " reduce delay when escaping from insert mode
 
 "------------------------------------------------------------------------------
 " Key mapping and remapping
@@ -202,8 +219,10 @@ set spelllang=en              " spellcheck using an English dictionary
 
 let mapleader = "\<SPACE>"    " Leader key is Space
                               " Navigate splits with leader+h/j/k/l
-nmap <leader>h :wincmd h<CR>
-nmap <leader>j :wincmd j<CR>
-nmap <leader>k :wincmd k<CR>
-nmap <leader>l :wincmd l<CR>
+nnoremap <leader>h :wincmd h<CR>
+nnoremap <leader>j :wincmd j<CR>
+nnoremap <leader>k :wincmd k<CR>
+nnoremap <leader>l :wincmd l<CR>
+                              " Clear search highlights in Normal mode
+nnoremap <leader>n :noh<CR>
 

@@ -1,15 +1,7 @@
 { config, pkgs, ... }:
 
-let 
+let
   unstable = import <unstable> {};
-  emacs = pkgs.stdenv.lib.overrideDerivation pkgs.emacs (oldAttrs : {
-    version = "26.1RC1";
-    src = pkgs.fetchurl {
-      url = "ftp://alpha.gnu.org/gnu/emacs/pretest/emacs-26.1-rc1.tar.xz";
-      sha256 = "6594e668de00b96e73ad4f168c897fe4bca7c55a4caf19ee20eac54b62a05758";
-    };
-    patches = [];
-  });
 in {
   imports = [ ./hardware-configuration.nix ];
 
@@ -68,10 +60,8 @@ in {
   environment.systemPackages = with pkgs; [
     audacity
     clipit
-    emacs
     dmenu
     dbus
-    emacs
     feh
     firefox
     git
@@ -85,14 +75,13 @@ in {
     tmux
     qutebrowser
     vim
-    neovim
     wget
     xorg.xmodmap
     xorg.xev
     xorg.libXinerama
-    (steam.override { extraPkgs = pkgs: with pkgs.pkgsi686Linux; [libvdpau libva-full]; })
     ghc
     stack
+    steam
     zlib
     zsh
   ];
@@ -110,9 +99,14 @@ in {
 
   sound.enable = true;
   hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.support32Bit = true;
 
   hardware.opengl.enable = true;
   hardware.opengl.driSupport32Bit = true;
+
+  virtualisation.virtualbox.host.enable = true;
+  nixpkgs.config.virtualbox.enableExtensionPack = true;
+  virtualization.virtualbox.host.enableHardening = false;
 
   # Enable the X11 windowing system.
   services = {
@@ -169,7 +163,7 @@ in {
     name = "jcb";
     isNormalUser = true;
     extraGroups = [ 
-      "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal"
+      "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal" "vboxusers"
     ];
     shell = pkgs.zsh;
     uid = 1000;
