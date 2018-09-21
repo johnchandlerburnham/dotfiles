@@ -47,28 +47,37 @@ in {
       inconsolata-lgc
       inconsolata
       ubuntu_font_family
+      dejavu_fonts
       nerdfonts
+      noto-fonts
+      noto-fonts-cjk
     ];
     fontconfig.defaultFonts.monospace = [
       "Inconsolata Nerd Font"
-      "Inconsolata LGC"
-      "Inconsolata"
+      "DejaVu Sans Mono Nerd Font"
+      "Noto Sans Mono"
+      "Noto Sans Mono CJK JP"
     ];
   };
 
 
   environment.systemPackages = with pkgs; [
     audacity
+    binutils
     clipit
     dmenu
     dbus
+    emacs
     feh
     firefox
     git
+    gnumake
     rxvt_unicode
     rofi
     oh-my-zsh
+    openssl
     pavucontrol
+    pkgconfig
     psmisc
     taffybar
     termite
@@ -103,10 +112,6 @@ in {
 
   hardware.opengl.enable = true;
   hardware.opengl.driSupport32Bit = true;
-
-  virtualisation.virtualbox.host.enable = true;
-  nixpkgs.config.virtualbox.enableExtensionPack = true;
-  virtualization.virtualbox.host.enableHardening = false;
 
   # Enable the X11 windowing system.
   services = {
@@ -163,7 +168,7 @@ in {
     name = "jcb";
     isNormalUser = true;
     extraGroups = [ 
-      "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal" "vboxusers"
+      "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal"
     ];
     shell = pkgs.zsh;
     uid = 1000;

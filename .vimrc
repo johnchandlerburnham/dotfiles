@@ -25,6 +25,7 @@ Plug 'dhruvasagar/vim-table-mode'
 
 Plug 'idris-hackers/idris-vim'
 Plug 'raichoo/purescript-vim'
+Plug 'rust-lang/rust.vim'
 
 call plug#end()
 
@@ -41,6 +42,13 @@ let g:table_mode_corner='|'
 let g:vim_markdown_fenced_languages = ['haskell=haskell']
 let g:vim_markdown_no_extensions_in_markdown = 1
 let g:vim_markdown_autowrite = 1
+
+" Rust
+                              " Don't override my preferred indent settings
+let g:rust_recommended_style=0
+                              " default rustfmt.toml
+let g:rustfmt_options='--config-path ~/.config/rustfmt/rustfmt.toml'
+let g:rustfmt_autosave=1      " automatically run :RustFmt on saving buffer
 
 "------------------------------------------------------------------------------
 " Vim Options
@@ -212,6 +220,7 @@ set nofoldenable              " Disable folding
 set spelllang=en              " spellcheck using an English dictionary
 set shortmess+=aI             " Shorten messages, don't show the intro message
 set ttimeoutlen=10            " reduce delay when escaping from insert mode
+set nrformats-=octal          " e.g increment 07 to 08 with <C-A>, not 10
 
 "------------------------------------------------------------------------------
 " Key mapping and remapping

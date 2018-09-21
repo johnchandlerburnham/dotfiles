@@ -49,7 +49,7 @@ myLayouts = avoidStruts $ spacingWithEdge 15 $
   ||| reflectHoriz (Tall 1 (3/100) (3/5))
 
 myStartupHook = do
-   spawn "feh --bg-fill --no-fehbg ~/background.png "
+   spawn "feh --bg-fill --no-fehbg ~/background.png"
    spawn "taffybar &"
 
 myManageHook = composeAll
@@ -63,7 +63,6 @@ myKeys =
   , ("M-S-p",                         spawn "rofi -show window")
   , ("M-b",                           spawn "qutebrowser")
   , ("M-S-b",                         spawn "firefox")
-  , ("M-<Return>",                    spawn "termite")
   , ("<XF86AudioLowerVolume>",        void $ lowerVolume 5)
   , ("<XF86AudioMute>",               void toggleMute)
   , ("<XF86AudioRaiseVolume>",        void $ raiseVolume 5)
@@ -72,7 +71,7 @@ myKeys =
 myConfig = def
     { modMask = myModMask
     , borderWidth = 3
-    , terminal = "termite -e tmux"
+    , terminal = "urxvt"
     , focusedBorderColor = cyan
     , startupHook = myStartupHook
     , layoutHook = myLayoutHook
