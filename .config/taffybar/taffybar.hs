@@ -133,7 +133,7 @@ main = do
       cpu = pollingGraphNew cpuGraphConfig 0.5 cpuCallback
       net = netMonitorNewWith 0.5 "wlp5s0" 3 "▼ $inMB$ Mb/s ▲ $outMB$ Mb/s"
 
-      --hot = pollingGraphNew hotGraphConfig 0.5 hotCallback
+      -- hot = pollingGraphNew hotGraphConfig 0.5 hotCallback
       tray = systrayNew
   defaultTaffybar defaultTaffybarConfig
     { startWidgets = [ pager, note, tray ]

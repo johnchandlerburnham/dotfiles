@@ -1,6 +1,6 @@
 
 [options]
-font = monospace 12
+font = Inconsolata LGC 10
 
 [colors]
 foreground = #657b83

@@ -2,6 +2,7 @@
 
 let
   unstable = import <unstable> {};
+  nixos1709 = import <nixos1709> {};
 in {
   imports = [ ./hardware-configuration.nix ];
 
@@ -25,6 +26,20 @@ in {
     pkgs.linuxPackages.nvidia_x11
   ];
 
+  nix = {
+    binaryCaches = [
+      "https://cache.nixos.org/"
+      "https://nixcache.reflex-frp.org"
+    ];
+    binaryCachePublicKeys = [
+      "ryantrinkle.com-1:JJiAKaRv9mWgpVAz8dwewnZe0AzzEAzPkagE9SP5NWI="
+    ];
+    trustedUsers = [ "root" "jcb" ];
+  };
+
+
+  virtualisation.docker.enable = true;
+
   networking = {
     hostName = "daphne";
     networkmanager.enable = true;
@@ -44,16 +59,17 @@ in {
     fonts = with pkgs; [
       hack-font
       hasklig
-      inconsolata-lgc
-      inconsolata
       ubuntu_font_family
       dejavu_fonts
       nerdfonts
       noto-fonts
       noto-fonts-cjk
+      noto-fonts-emoji
+      symbola
+      source-code-pro
     ];
     fontconfig.defaultFonts.monospace = [
-      "Inconsolata Nerd Font"
+      "Inconsolata LGC Nerd Font"
       "DejaVu Sans Mono Nerd Font"
       "Noto Sans Mono"
       "Noto Sans Mono CJK JP"
@@ -65,9 +81,8 @@ in {
     audacity
     binutils
     clipit
-    dmenu
     dbus
-    emacs
+    dmenu
     feh
     firefox
     git
@@ -79,9 +94,9 @@ in {
     pavucontrol
     pkgconfig
     psmisc
-    taffybar
     termite
     tmux
+    nixos1709.taffybar
     qutebrowser
     vim
     wget
@@ -98,7 +113,7 @@ in {
 
   programs.zsh = {
     enable = true;
-    enableAutosuggestions = true;
+    autosuggestions.enable = true;
     enableCompletion = true;
     syntaxHighlighting.enable = true;
     ohMyZsh = {
@@ -115,11 +130,17 @@ in {
 
   # Enable the X11 windowing system.
   services = {
+    #emacs = {
+    #  enable = true;
+    #  defaultEditor = true;
+    #  package = import /home/jcb/.emacs.d { pkgs = pkgs; };
+    #};
+
     openssh.enable = true;
 
     xserver = {
       enable = true;
-      config = 
+      config =
       ''
        Section "Monitor"
          Identifier "HDMI-0"
@@ -144,10 +165,6 @@ in {
       windowManager.xmonad = {
         enable = true;
         enableContribAndExtras = true;
-        extraPackages = haskellPackages: [
-          haskellPackages.dbus
-          haskellPackages.taffybar
-        ];
       };
     };
   };
@@ -167,8 +184,8 @@ in {
   users.extraUsers.jcb = {
     name = "jcb";
     isNormalUser = true;
-    extraGroups = [ 
-      "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal"
+    extraGroups = [
+      "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal" "docker"
     ];
     shell = pkgs.zsh;
     uid = 1000;
@@ -178,6 +195,6 @@ in {
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "18.03"; # Did you read the comment?
+  system.stateVersion = "18.09"; # Did you read the comment?
 
 }

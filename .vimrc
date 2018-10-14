@@ -26,6 +26,7 @@ Plug 'dhruvasagar/vim-table-mode'
 Plug 'idris-hackers/idris-vim'
 Plug 'raichoo/purescript-vim'
 Plug 'rust-lang/rust.vim'
+Plug 'lnl7/vim-nix'
 
 call plug#end()
 
@@ -34,6 +35,8 @@ let g:netrw_banner=0          " Disable banner header
 let g:netrw_winsize=20        " window is 20 columns wide
 let g:netrw_liststyle=3       " tree style listing
 let g:netrw_browse_split=4    " open files in previous window
+
+" LSP
 
 " Vim-Markdown
 let g:vim_markdown_math=1     " enable LaTeX and YAML syntax extensions

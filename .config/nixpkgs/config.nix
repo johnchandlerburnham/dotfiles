@@ -1,1 +1,5 @@
-{ allowUnfree = true; }
+{ allowUnfree = true;
+
+  firefox.enableGoogleTalkPlugin = true;
+
+}

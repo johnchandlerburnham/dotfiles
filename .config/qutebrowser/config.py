@@ -243,19 +243,19 @@ c.colors.prompts.selected.bg = solarized['base01']
 
 ## Background color of the statusbar in caret mode.
 ## Type: QssColor
-c.colors.statusbar.caret.bg = solarized['blue']
+c.colors.statusbar.caret.bg = solarized['base03']
 
 ## Foreground color of the statusbar in caret mode.
 ## Type: QssColor
-c.colors.statusbar.caret.fg = solarized['base1']
+c.colors.statusbar.caret.fg = solarized['blue']
 
 ## Background color of the statusbar in caret mode with a selection.
 ## Type: QssColor
-c.colors.statusbar.caret.selection.bg = solarized['violet']
+c.colors.statusbar.caret.selection.bg = solarized['base03']
 
 ## Foreground color of the statusbar in caret mode with a selection.
 ## Type: QssColor
-c.colors.statusbar.caret.selection.fg = solarized['base1']
+c.colors.statusbar.caret.selection.fg = solarized['violet']
 
 ## Background color of the statusbar in command mode.
 ## Type: QssColor
@@ -263,7 +263,7 @@ c.colors.statusbar.command.bg = solarized['base03']
 
 ## Foreground color of the statusbar in command mode.
 ## Type: QssColor
-c.colors.statusbar.command.fg = solarized['base1']
+c.colors.statusbar.command.fg = solarized['base00']
 
 ## Background color of the statusbar in private browsing + command mode.
 ## Type: QssColor
@@ -275,11 +275,11 @@ c.colors.statusbar.command.private.fg = solarized['base3']
 
 ## Background color of the statusbar in insert mode.
 ## Type: QssColor
-c.colors.statusbar.insert.bg = solarized['base02']
+c.colors.statusbar.insert.bg = solarized['base3']
 
 ## Foreground color of the statusbar in insert mode.
 ## Type: QssColor
-c.colors.statusbar.insert.fg = solarized['base1']
+c.colors.statusbar.insert.fg = solarized['green']
 
 ## Background color of the statusbar.
 ## Type: QssColor

@@ -16,7 +16,6 @@ import           XMonad.Util.EZConfig
 import           XMonad.Actions.Volume
 
 import           Control.Monad
-import           System.Taffybar.Hooks.PagerHints
 
 -- Solarized Colors
 base03  ="#002b36"
@@ -76,7 +75,8 @@ myConfig = def
     , startupHook = myStartupHook
     , layoutHook = myLayoutHook
     , manageHook = myManageHook
-    , handleEventHook = handleEventHook def <+> fullscreenEventHook
+    , handleEventHook = handleEventHook def
     } `additionalKeysP` myKeys
 
-main = xmonad . docks . pagerHints . ewmh . fullscreenSupport $ myConfig
+main = xmonad . docks . ewmh $ myConfig
+
