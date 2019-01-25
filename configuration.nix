@@ -3,25 +3,27 @@
 let
   unstable = import <unstable> {};
   nixos1709 = import <nixos1709> {};
+  myPython = pkgs.python36Full.withPackages(ps: [ ps.neovim ]);
 in {
   imports = [ ./hardware-configuration.nix ];
 
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+    packageOverrides = pkgs : {
+      emacs = pkgs.lib.overrideDerivation (pkgs.emacs.override {
+        withGTK3 = true;
+        imagemagick = pkgs.imagemagickBig;
+      }) (attrs: {});
+  };
+};
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub = {
     enable = true;
     version = 2;
-    gfxmodeBios="1900x1200";
-    extraConfig=
-    ''
-    set gfxpayload=keep
-    '';
     device = "/dev/sda";
   };
 
-  #boot.initrd.kernelModules = [ "fbcon" ];
-  boot.kernelParams = [ "fbcon=rotate:1" ];
   boot.extraModulePackages = [
     pkgs.linuxPackages.nvidia_x11
   ];
@@ -67,15 +69,19 @@ in {
       noto-fonts-emoji
       symbola
       source-code-pro
+      liberation_ttf
     ];
     fontconfig.defaultFonts.monospace = [
       "Inconsolata LGC Nerd Font"
-      "DejaVu Sans Mono Nerd Font"
-      "Noto Sans Mono"
       "Noto Sans Mono CJK JP"
+      "Noto Sans Hebrew"
+      "Noto Color Emoji"
+      "Noto Sans Symbols"
+      "Noto Sans Mono Nerd Font"
+      "DejaVu Sans Mono Nerd Font"
+      "Symbola"
     ];
   };
-
 
   environment.systemPackages = with pkgs; [
     audacity
@@ -87,18 +93,24 @@ in {
     firefox
     git
     gnumake
-    rxvt_unicode
-    rofi
+    gcc
+    imagemagick7Big
     oh-my-zsh
     openssl
     pavucontrol
     pkgconfig
     psmisc
+    rxvt_unicode
+    rofi
     termite
     tmux
     nixos1709.taffybar
     qutebrowser
-    vim
+    myPython
+    (vim_configurable.override {
+      python = myPython;
+      wrapPythonDrv = true;
+    })
     wget
     xorg.xmodmap
     xorg.xev
@@ -126,15 +138,14 @@ in {
   hardware.pulseaudio.support32Bit = true;
 
   hardware.opengl.enable = true;
-  hardware.opengl.driSupport32Bit = true;
+    hardware.opengl.driSupport32Bit = true;
 
   # Enable the X11 windowing system.
   services = {
-    #emacs = {
-    #  enable = true;
-    #  defaultEditor = true;
-    #  package = import /home/jcb/.emacs.d { pkgs = pkgs; };
-    #};
+    emacs = {
+      install = true;
+      defaultEditor = true;
+    };
 
     openssh.enable = true;
 
@@ -144,12 +155,10 @@ in {
       ''
        Section "Monitor"
          Identifier "HDMI-0"
-         Option     "Rotate" "right"
        EndSection
 
        Section "Monitor"
          Identifier "DP-0"
-         Option     "RightOf" "HDMI-0"
          Option     "Primary" "true"
        EndSection
       '';
@@ -167,6 +176,19 @@ in {
         enableContribAndExtras = true;
       };
     };
+
+    udev.extraRules = ''
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2581", ATTRS{idProduct}=="1b7c", MODE="0660", GROUP="plugdev"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2581", ATTRS{idProduct}=="2b7c", MODE="0660", GROUP="plugdev"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2581", ATTRS{idProduct}=="3b7c", MODE="0660", GROUP="plugdev"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2581", ATTRS{idProduct}=="4b7c", MODE="0660", GROUP="plugdev"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2581", ATTRS{idProduct}=="1807", MODE="0660", GROUP="plugdev"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2581", ATTRS{idProduct}=="1808", MODE="0660", GROUP="plugdev"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2c97", ATTRS{idProduct}=="0000", MODE="0660", GROUP="plugdev"
+    SUBSYSTEMS=="usb", ATTRS{idVendor}=="2c97", ATTRS{idProduct}=="0001", MODE="0660", GROUP="plugdev"
+    KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", GROUP="plugdev", ATTRS{idVendor}=="2c97"
+    KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", GROUP="plugdev", ATTRS{idVendor}=="2581"
+  '';
   };
 
   swapDevices = [
@@ -180,12 +202,15 @@ in {
     ln -sf ${config.services.xserver.displayManager.session.desktops} /etc/X11/sessions
   '';
 
+  users.extraGroups.plugdev = { gid = 1011; };
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.extraUsers.jcb = {
     name = "jcb";
     isNormalUser = true;
     extraGroups = [
       "wheel" "disk" "audio" "video" "networkmanager" "systemd-journal" "docker"
+      "plugdev" "dialout" "uucp"
     ];
     shell = pkgs.zsh;
     uid = 1000;

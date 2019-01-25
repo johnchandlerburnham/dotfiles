@@ -1,7 +1,7 @@
 import           XMonad
 
 import           XMonad.Hooks.DynamicLog
-import           XMonad.Hooks.EwmhDesktops        (ewmh)
+import           XMonad.Hooks.EwmhDesktops  (ewmh)
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 
@@ -69,9 +69,9 @@ myKeys =
 
 myConfig = def
     { modMask = myModMask
-    , borderWidth = 3
+    , borderWidth = 4
     , terminal = "urxvt"
-    , focusedBorderColor = cyan
+    , focusedBorderColor = magenta
     , startupHook = myStartupHook
     , layoutHook = myLayoutHook
     , manageHook = myManageHook

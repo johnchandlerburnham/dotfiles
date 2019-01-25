@@ -10,7 +10,7 @@
 call plug#begin()
 
 " Solarized Colorscheme
-Plug 'altercation/vim-colors-solarized'
+Plug 'jwhitley/vim-colors-solarized'
 
 " A fancy status bar upgrade
 Plug 'vim-airline/vim-airline'
@@ -22,21 +22,60 @@ Plug 'plasticboy/vim-markdown'
 Plug 'dhruvasagar/vim-table-mode'
 
 " Language Specific plugins
-
 Plug 'idris-hackers/idris-vim'
 Plug 'raichoo/purescript-vim'
 Plug 'rust-lang/rust.vim'
 Plug 'lnl7/vim-nix'
+Plug 'nbouscal/vim-stylish-haskell'
+Plug 'def-lkb/vimbufsync'
+Plug 'autozimu/LanguageClient-neovim', {
+     \ 'branch': 'next',
+     \ 'do': 'bash install.sh',
+     \ }
+
+" deoplete
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+
+" NERDTREE
+Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
 
 call plug#end()
 
-" Netrw (built-in file tree browser)
+" deoplete
+if has('nvim')
+  let g:deoplete#enable_at_startup = 1
+else
+  let g:deoplete#enable_at_startup = 0
+  autocmd InsertEnter * call deoplete#enable()
+endif
+
+set encoding=utf-8
+call deoplete#custom#var('around', {
+  \   'mark_above': '[↑]',
+  \   'mark_below': '[↓]',
+  \   'mark_changes': '[*]',
+  \})
+
+call deoplete#custom#source('_', 'max_abbr_width', 0)
+call deoplete#custom#source('_', 'max_menu_width', 0)
+
+" LanguageClient
+let g:LanguageClient_serverCommands = { 'haskell': ['hie-wrapper'] }
+let g:LanguageClient_rootMarkers = ['*.cabal', 'stack.yaml']
+let g:LanguageClient_hoverPreview = "Always"
+
+" Netrw (built-in file tree browser) settings
 let g:netrw_banner=0          " Disable banner header
 let g:netrw_winsize=20        " window is 20 columns wide
 let g:netrw_liststyle=3       " tree style listing
 let g:netrw_browse_split=4    " open files in previous window
-
-" LSP
 
 " Vim-Markdown
 let g:vim_markdown_math=1     " enable LaTeX and YAML syntax extensions
@@ -52,6 +91,7 @@ let g:rust_recommended_style=0
                               " default rustfmt.toml
 let g:rustfmt_options='--config-path ~/.config/rustfmt/rustfmt.toml'
 let g:rustfmt_autosave=1      " automatically run :RustFmt on saving buffer
+
 
 "------------------------------------------------------------------------------
 " Vim Options
@@ -216,6 +256,13 @@ set path+=**                  " When completing, search into sub-folders
 set wildmenu                  " Show command line completion options as a menu
 set complete-=i               " Don't search included files completions
 
+" Highlights
+highlight CoqChecked ctermbg=7
+highlight CoqSent cterm=underline ctermbg=7
+highlight Search cterm=italic
+highlight clear CursorLine    " this gives a nice effect in the line no. column
+highlight SignColumn ctermbg=7
+
 " Misc. UI
 set lazyredraw                " Only redraw when necessary for performance
 set showmatch                 " Show matching brace when inserting closing brace
@@ -224,17 +271,43 @@ set spelllang=en              " spellcheck using an English dictionary
 set shortmess+=aI             " Shorten messages, don't show the intro message
 set ttimeoutlen=10            " reduce delay when escaping from insert mode
 set nrformats-=octal          " e.g increment 07 to 08 with <C-A>, not 10
+set nocompatible              " turn off vi compatiblity
+set backspace=2               " allow backspacing over indent,eol, start
+set hidden                    " don't abandon buffers
+set signcolumn=yes            " always show the sign column
 
 "------------------------------------------------------------------------------
 " Key mapping and remapping
 "------------------------------------------------------------------------------
 
 let mapleader = "\<SPACE>"    " Leader key is Space
-                              " Navigate splits with leader+h/j/k/l
+                              " Navigate panes with leader+h/j/k/l
 nnoremap <leader>h :wincmd h<CR>
 nnoremap <leader>j :wincmd j<CR>
 nnoremap <leader>k :wincmd k<CR>
 nnoremap <leader>l :wincmd l<CR>
+                              " Move panes with leader+H/J/K/L
+nnoremap <leader>H :wincmd H<CR>
+nnoremap <leader>J :wincmd J<CR>
+nnoremap <leader>K :wincmd K<CR>
+nnoremap <leader>L :wincmd L<CR>
                               " Clear search highlights in Normal mode
 nnoremap <leader>n :noh<CR>
 
+if has('nvim')                " terminal settings
+  nnoremap <leader>' :10new \| :term<CR>i
+  tnoremap <C-d> <C-\><C-N>:q<CR>
+  tnoremap <C-ESC> <C-\><C-N>
+  au TermOpen * setlocal nonumber norelativenumber scl=no
+else
+  nnoremap <leader>' :term<CR>
+endif
+
+" Coq
+nnoremap <leader>ml :CoqStart<CR>
+nnoremap <leader>mx :CoqQuit<CR>
+nnoremap <leader>mm :CoqNext<CR>
+nnoremap <leader>m. :CoqToCursor<CR>
+nnoremap <leader>mM :CoqRewind<CR>
+nnoremap <leader>m: :CoqQuery
+nnoremap <leader>m? :CoqSet
