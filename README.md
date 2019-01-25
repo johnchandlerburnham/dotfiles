@@ -1,2 +1,2 @@
 # dotfiles
-Nixos + XMonad + URxvt + fish + vim + spacemacs
+Nixos + XMonad + URxvt + zsh + vim + spacemacs
