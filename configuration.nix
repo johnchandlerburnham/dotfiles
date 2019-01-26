@@ -105,6 +105,7 @@ in {
     termite
     tmux
     nixos1709.taffybar
+    neovim
     qutebrowser
     myPython
     (vim_configurable.override {
@@ -144,7 +145,7 @@ in {
   services = {
     emacs = {
       install = true;
-      defaultEditor = true;
+      defaultEditor = false;
     };
 
     openssh.enable = true;

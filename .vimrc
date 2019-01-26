@@ -42,6 +42,9 @@ else
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 
+  Plug 'Shougo/neco-syntax'
+  Plug 'Shougo/neco-vim'
+
 " NERDTREE
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
@@ -49,12 +52,14 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 call plug#end()
 
 " deoplete
-if has('nvim')
-  let g:deoplete#enable_at_startup = 1
-else
-  let g:deoplete#enable_at_startup = 0
-  autocmd InsertEnter * call deoplete#enable()
-endif
+let g:deoplete#enable_at_startup = 0
+
+" control deoplete for each filetype
+autocmd InsertEnter *.hs call deoplete#enable()
+autocmd InsertEnter *.lhs call deoplete#enable()
+autocmd InsertEnter *.vim call deoplete#enable()
+autocmd InsertEnter *.vimrc call deoplete#enable()
+autocmd InsertEnter *.md call deoplete#disable()
 
 set encoding=utf-8
 call deoplete#custom#var('around', {
@@ -69,7 +74,24 @@ call deoplete#custom#source('_', 'max_menu_width', 0)
 " LanguageClient
 let g:LanguageClient_serverCommands = { 'haskell': ['hie-wrapper'] }
 let g:LanguageClient_rootMarkers = ['*.cabal', 'stack.yaml']
-let g:LanguageClient_hoverPreview = "Always"
+let g:LanguageClient_hoverPreview = "Auto"
+
+function LC_maps()
+  if has_key(g:LanguageClient_serverCommands, &filetype)
+    nnoremap <buffer> <silent> <F5> :call LanguageClient_contextMenu()<CR>
+    nnoremap <buffer> <silent> K :call LanguageClient#textDocument_hover()<CR>
+    nnoremap <buffer> <silent> gd :call LanguageClient#textDocument_definition()<CR>
+    nnoremap <buffer> <silent> gr :call LanguageClient#textDocument_rename()<CR>
+    nnoremap <buffer> <silent> gq :call LanguageClient#textDocument_formatting()<CR>
+    nnoremap <buffer> <silent> <leader>cb :call LanguageClient#textDocument_references()<CR>
+    nnoremap <buffer> <silent> <leader>ca :call LanguageClient#textDocument_codeAction()<CR>
+    nnoremap <buffer> <silent> <leader>cs :call LanguageClient#textDocument_documentSymbol()<CR>
+    nnoremap <buffer> <silent> <leader>? :call LanguageClient#explainErrorAtPoint()<CR>
+    nnoremap <buffer> <silent> <leader>c# :call LanguageClient#debugInfo<CR>
+  endif
+endfunction
+
+autocmd FileType * call LC_maps()
 
 " Netrw (built-in file tree browser) settings
 let g:netrw_banner=0          " Disable banner header
@@ -259,9 +281,14 @@ set complete-=i               " Don't search included files completions
 " Highlights
 highlight CoqChecked ctermbg=7
 highlight CoqSent cterm=underline ctermbg=7
-highlight Search cterm=italic
+highlight Search cterm=italic ctermfg=Magenta
 highlight clear CursorLine    " this gives a nice effect in the line no. column
 highlight SignColumn ctermbg=7
+
+hi link ALEError Error
+hi Warning term=underline cterm=underline ctermfg=Yellow gui=undercurl guisp=Gold
+hi link ALEWarning Warning
+hi link ALEInfo SpellCap
 
 " Misc. UI
 set lazyredraw                " Only redraw when necessary for performance
@@ -291,10 +318,11 @@ nnoremap <leader>H :wincmd H<CR>
 nnoremap <leader>J :wincmd J<CR>
 nnoremap <leader>K :wincmd K<CR>
 nnoremap <leader>L :wincmd L<CR>
-                              " Clear search highlights in Normal mode
-nnoremap <leader>n :noh<CR>
 
-if has('nvim')                " terminal settings
+nnoremap <leader>n :noh<CR>   " Clear search highlights in Normal mode
+nnoremap <leader>= <C-W>=     " Equalize splits
+
+if has('nvim')                " terminal settings, make nvim behave like vim
   nnoremap <leader>' :10new \| :term<CR>i
   tnoremap <C-d> <C-\><C-N>:q<CR>
   tnoremap <C-ESC> <C-\><C-N>
@@ -311,3 +339,23 @@ nnoremap <leader>m. :CoqToCursor<CR>
 nnoremap <leader>mM :CoqRewind<CR>
 nnoremap <leader>m: :CoqQuery
 nnoremap <leader>m? :CoqSet
+
+" NERDTree
+
+let NERDTreeMinimalUI = 1    "
+let NERDTreeAutoDeleteBuffer = 1
+let NERDTreeQuitOnOpen = 1
+
+" open NERDTree automatically if no files specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+" and on opening a directory
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif"
+
+" and close if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+nnoremap <silent> <leader>f :NERDTreeToggle<CR>
+nnoremap <silent> <leader>F :NERDTreeFocus<CR>
+nnoremap <silent> <leader>v :NERDTreeFind<CR>
