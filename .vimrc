@@ -1,20 +1,25 @@
 " File: Vim Configuration (.vimrc)
 " Author: John C. Burnham (jcb@johnchandlerburnham.com)
-" Date: 2018-5-25
+" Date: 2019-01-26
 "==============================================================================
 
 "------------------------------------------------------------------------------
 " Plugins (with vim-plug) and plugin configuration
 "------------------------------------------------------------------------------
 
+" Plugin declarations
+" -------------------
+
 call plug#begin()
 
 " Solarized Colorscheme
-Plug 'jwhitley/vim-colors-solarized'
+Plug 'altercation/vim-colors-solarized'
+Plug 'iCyMind/NeoSolarized'
 
 " A fancy status bar upgrade
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'tpope/vim-fugitive'
 
 " Useful Markdown plugins
 Plug 'godlygeek/tabular'
@@ -42,26 +47,29 @@ else
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 
-  Plug 'Shougo/neco-syntax'
-  Plug 'Shougo/neco-vim'
+" deoplete sources
+Plug 'Shougo/neco-syntax'
+Plug 'Shougo/neco-vim'
 
-" NERDTREE
+" NERDTree
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 
 call plug#end()
 
+" Plugin configuration
+" --------------------
+
+" airline
+let g:airline_powerline_fonts = 1
+let g:airline_exclued_preview = 1
+let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#languageclient#enabled = 1
+
 " deoplete
 let g:deoplete#enable_at_startup = 0
 
-" control deoplete for each filetype
-autocmd InsertEnter *.hs call deoplete#enable()
-autocmd InsertEnter *.lhs call deoplete#enable()
-autocmd InsertEnter *.vim call deoplete#enable()
-autocmd InsertEnter *.vimrc call deoplete#enable()
-autocmd InsertEnter *.md call deoplete#disable()
-
-set encoding=utf-8
 call deoplete#custom#var('around', {
   \   'mark_above': '[↑]',
   \   'mark_below': '[↓]',
@@ -76,28 +84,17 @@ let g:LanguageClient_serverCommands = { 'haskell': ['hie-wrapper'] }
 let g:LanguageClient_rootMarkers = ['*.cabal', 'stack.yaml']
 let g:LanguageClient_hoverPreview = "Auto"
 
-function LC_maps()
-  if has_key(g:LanguageClient_serverCommands, &filetype)
-    nnoremap <buffer> <silent> <F5> :call LanguageClient_contextMenu()<CR>
-    nnoremap <buffer> <silent> K :call LanguageClient#textDocument_hover()<CR>
-    nnoremap <buffer> <silent> gd :call LanguageClient#textDocument_definition()<CR>
-    nnoremap <buffer> <silent> gr :call LanguageClient#textDocument_rename()<CR>
-    nnoremap <buffer> <silent> gq :call LanguageClient#textDocument_formatting()<CR>
-    nnoremap <buffer> <silent> <leader>cb :call LanguageClient#textDocument_references()<CR>
-    nnoremap <buffer> <silent> <leader>ca :call LanguageClient#textDocument_codeAction()<CR>
-    nnoremap <buffer> <silent> <leader>cs :call LanguageClient#textDocument_documentSymbol()<CR>
-    nnoremap <buffer> <silent> <leader>? :call LanguageClient#explainErrorAtPoint()<CR>
-    nnoremap <buffer> <silent> <leader>c# :call LanguageClient#debugInfo<CR>
-  endif
-endfunction
 
-autocmd FileType * call LC_maps()
-
-" Netrw (built-in file tree browser) settings
+" Netrw (built-in file tree browser) settings (legacy)
 let g:netrw_banner=0          " Disable banner header
 let g:netrw_winsize=20        " window is 20 columns wide
 let g:netrw_liststyle=3       " tree style listing
 let g:netrw_browse_split=4    " open files in previous window
+
+" NERDTree
+let NERDTreeMinimalUI = 1     " remove extraneous UI clutter
+let NERDTreeAutoDeleteBuffer=1
+let NERDTreeQuitOnOpen = 1
 
 " Vim-Markdown
 let g:vim_markdown_math=1     " enable LaTeX and YAML syntax extensions
@@ -121,8 +118,32 @@ let g:rustfmt_autosave=1      " automatically run :RustFmt on saving buffer
 
 " Colorscheme
 syntax enable                 " Syntax highlighting
-colorscheme solarized         " delightful Solarized colors by Ethan Schoonover
-set background=light          " in their light background variation
+set termguicolors
+"colorscheme solarized         " delightful Solarized colors by Ethan Schoonover
+colorscheme NeoSolarized       " truecolor Solarized
+
+if has('nvim')
+  set background=light        " in their light background variation for neovim
+else
+  set background=dark         " and dark for vim8
+endif
+
+let sol_base03  = "#002b36"
+let sol_base02  = "#073642"
+let sol_base01  = "#586e75"
+let sol_base00  = "#657b83"
+let sol_base0   = "#839496"
+let sol_base1   = "#93a1a1"
+let sol_base2   = "#eee8d5"
+let sol_base3   = "#fdf6e3"
+let sol_yellow  = "#b58900"
+let sol_orange  = "#cb4b16"
+let sol_red     = "#dc322f"
+let sol_magenta = "#d33682"
+let sol_violet  = "#6c71c4"
+let sol_blue    = "#268bd2"
+let sol_cyan    = "#2aa198"
+let sol_green   = "#859899"
 
 " Filetype options
 filetype on                   " detect filetype for syntax highlighting
@@ -162,6 +183,8 @@ set formatoptions-=o          " don't insert comment leader after 'o' or 'O'
   " overrides my settings, so I have to force it in an ugly way with an autocmd.
   " I don't want to force the text-width autowrap though.
 autocmd FileType * set fo+=qn fo-=o
+
+set encoding=utf-8            " self-explanatory, required for deoplete
 
 " Status line
 set showcmd                   " Show commands in lower right corner
@@ -281,12 +304,22 @@ set complete-=i               " Don't search included files completions
 " Highlights
 highlight CoqChecked ctermbg=7
 highlight CoqSent cterm=underline ctermbg=7
-highlight Search cterm=italic ctermfg=Magenta
+exe 'hi Search cterm=italic ctermfg=Magenta gui=italic guifg=' . g:sol_magenta
+exe 'hi IncSearch cterm=italic ctermfg=Magenta ' . ' gui=italic guifg=' . sol_magenta . ' guibg=' . sol_base2
 highlight clear CursorLine    " this gives a nice effect in the line no. column
-highlight SignColumn ctermbg=7
+
+if &bg == 'light'
+  exe 'hi SignColumn ctermbg=7 guibg=' sol_base2
+  exe 'highlight Pmenu gui=bold guibg=' . sol_base2
+  exe 'highlight PmenuSel gui=bold guifg=' . sol_orange . ' guibg=' . sol_base2
+  exe 'highlight PmenuSbar guibg=' . sol_base1
+else
+  exe 'hi SignColumn ctermbg=0 guibg=' sol_base02
+endif
+
 
 hi link ALEError Error
-hi Warning term=underline cterm=underline ctermfg=Yellow gui=undercurl guisp=Gold
+exe 'hi Warning term=underline cterm=underline ctermfg=Yellow gui=undercurl guisp=' . sol_yellow
 hi link ALEWarning Warning
 hi link ALEInfo SpellCap
 
@@ -340,22 +373,47 @@ nnoremap <leader>mM :CoqRewind<CR>
 nnoremap <leader>m: :CoqQuery
 nnoremap <leader>m? :CoqSet
 
-" NERDTree
-
-let NERDTreeMinimalUI = 1    "
-let NERDTreeAutoDeleteBuffer = 1
-let NERDTreeQuitOnOpen = 1
-
-" open NERDTree automatically if no files specified
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-
-" and on opening a directory
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif"
-
-" and close if the only window left open is a NERDTree
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 nnoremap <silent> <leader>f :NERDTreeToggle<CR>
 nnoremap <silent> <leader>F :NERDTreeFocus<CR>
 nnoremap <silent> <leader>v :NERDTreeFind<CR>
+
+" custom mapping for LanguageClient
+function LC_maps()
+  if has_key(g:LanguageClient_serverCommands, &filetype)
+    nnoremap <buffer> <silent> <F5> :call LanguageClient_contextMenu()<CR>
+    nnoremap <buffer> <silent> K :call LanguageClient#textDocument_hover()<CR>
+    nnoremap <buffer> <silent> gd :call LanguageClient#textDocument_definition()<CR>
+    nnoremap <buffer> <silent> gr :call LanguageClient#textDocument_rename()<CR>
+    nnoremap <buffer> <silent> gq :call LanguageClient#textDocument_formatting()<CR>
+    nnoremap <buffer> <silent> <leader>cb :call LanguageClient#textDocument_references()<CR>
+    nnoremap <buffer> <silent> <leader>ca :call LanguageClient#textDocument_codeAction()<CR>
+    nnoremap <buffer> <silent> <leader>cs :call LanguageClient#textDocument_documentSymbol()<CR>
+    nnoremap <buffer> <silent> <leader>? :call LanguageClient#explainErrorAtPoint()<CR>
+    nnoremap <buffer> <silent> <leader>c# :call LanguageClient#debugInfo<CR>
+  endif
+endfunction
+
+" ----------------------------------------------------------------------------
+" autocommands
+" ----------------------------------------------------------------------------
+
+autocmd VimResized * :redraw! " fix resizing/redraw issues
+
+autocmd FileType * call LC_maps()  " activate LanguageClient mapping
+
+" control deoplete for each filetype
+autocmd InsertEnter *.hs call deoplete#enable()
+autocmd InsertEnter *.lhs call deoplete#enable()
+autocmd InsertEnter *.vim call deoplete#enable()
+autocmd InsertEnter *.vimrc call deoplete#enable()
+autocmd InsertEnter *.md call deoplete#disable()
+
+" NERDTee
+" open NERDTree automatically if no files specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+" and on opening a directory
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif"
+" and close if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
