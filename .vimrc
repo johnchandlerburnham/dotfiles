@@ -170,6 +170,7 @@ set number                    " Show line numbers
 set numberwidth=3             " Line number column is 3 characters wide
 set ruler                     " Show line/ column numbers in lower right
 set cursorline                " Highlight cursors current line
+set guicursor=n-sm-v:block,c:cCursor,n:nCursor,i-c-ci-ve:ver25,r-cr-o:hor20
 set colorcolumn=80            " Highlight column 80
 set textwidth=80              " Lines are 80 characters long
 set wrap                      " wrap lines that go off screen
@@ -179,9 +180,9 @@ set autoindent                " preserve indent at level of previous line
 set formatoptions+=tqn        " textwidth autowrap, gq comments & num lists
 set formatoptions-=o          " don't insert comment leader after 'o' or 'O'
 
-  " Note: This doesn't work when we're in a file that has a filetype plugin that
-  " overrides my settings, so I have to force it in an ugly way with an autocmd.
-  " I don't want to force the text-width autowrap though.
+" Note: This doesn't work when we're in a file that has a filetype plugin that
+" overrides my settings, so I have to force it in an ugly way with an autocmd.
+" I don't want to force the text-width autowrap though.
 autocmd FileType * set fo+=qn fo-=o
 
 set encoding=utf-8            " self-explanatory, required for deoplete
@@ -309,10 +310,14 @@ exe 'hi IncSearch cterm=italic ctermfg=Magenta ' . ' gui=italic guifg=' . sol_ma
 highlight clear CursorLine    " this gives a nice effect in the line no. column
 
 if &bg == 'light'
-  exe 'hi SignColumn ctermbg=7 guibg=' sol_base2
+  exe 'hi SignColumn ctermbg=7 guibg=' . sol_base2
   exe 'highlight Pmenu gui=bold guibg=' . sol_base2
   exe 'highlight PmenuSel gui=bold guifg=' . sol_orange . ' guibg=' . sol_base2
   exe 'highlight PmenuSbar guibg=' . sol_base1
+  hi clear Visual
+  exe 'highlight! Visual guibg=' . sol_base2
+  exe 'highlight! cCursor guibg=' . sol_base02
+  exe 'highlight! nCursor guibg=' . sol_base2
 else
   exe 'hi SignColumn ctermbg=0 guibg=' sol_base02
 endif
