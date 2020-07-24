@@ -1,6 +1,6 @@
 ! .Xresources
 URxvt.depth: 32
-URxvt.internalBorder: 10
+URxvt.internalBorder: 7
 URxvt.externalBorder: 0
 URxvt.linespace: 0
 
@@ -86,7 +86,7 @@ URxvt*scrollstyle: plain
 URxvt*scrollColor: S_base2
 
 ! Fading
-URxvt*fading: 20
+URxvt*fading: 0
 URxvt*fadeColor: S_base2
 
 ! Tabs

@@ -13,6 +13,8 @@ import           XMonad.Layout.ThreeColumns
 
 import           XMonad.Util.EZConfig
 
+import           XMonad.Config.Xfce
+
 import           XMonad.Actions.Volume
 
 import           Control.Monad
@@ -47,10 +49,6 @@ myLayouts = avoidStruts $ spacingWithEdge 15 $
   ||| Tall 1 (3/100) (3/5)
   ||| reflectHoriz (Tall 1 (3/100) (3/5))
 
-myStartupHook = do
-   spawn "feh --bg-fill --no-fehbg ~/background.png"
-   spawn "taffybar &"
-
 myManageHook = composeAll
   [ manageDocks
   , fullscreenManageHook
@@ -60,19 +58,19 @@ myManageHook = composeAll
 myKeys =
   [ ("M-p",                           spawn "rofi -show run"   )
   , ("M-S-p",                         spawn "rofi -show window")
-  , ("M-b",                           spawn "qutebrowser")
   , ("M-S-b",                         spawn "firefox")
-  , ("<XF86AudioLowerVolume>",        void $ lowerVolume 5)
-  , ("<XF86AudioMute>",               void toggleMute)
-  , ("<XF86AudioRaiseVolume>",        void $ raiseVolume 5)
+--  , ("<XF86AudioLowerVolume>",        void $ lowerVolume 5)
+--  , ("<XF86AudioMute>",               void toggleMute)
+--  , ("<XF86AudioRaiseVolume>",        void $ raiseVolume 5)
   ]
 
-myConfig = def
+myConfig = xfceConfig
     { modMask = myModMask
     , borderWidth = 4
-    , terminal = "urxvt"
+    , terminal = "xfce4-terminal"
     , focusedBorderColor = magenta
-    , startupHook = myStartupHook
+    , normalBorderColor = base03
+--    , startupHook = myStartupHook
     , layoutHook = myLayoutHook
     , manageHook = myManageHook
     , handleEventHook = handleEventHook def

@@ -28,34 +28,23 @@ Plug 'dhruvasagar/vim-table-mode'
 
 " Language Specific plugins
 Plug 'idris-hackers/idris-vim'
+Plug 'derekelkins/agda-vim'
 Plug 'raichoo/purescript-vim'
 Plug 'rust-lang/rust.vim'
 Plug 'lnl7/vim-nix'
-Plug 'nbouscal/vim-stylish-haskell'
-Plug 'def-lkb/vimbufsync'
-Plug 'autozimu/LanguageClient-neovim', {
-     \ 'branch': 'next',
-     \ 'do': 'bash install.sh',
-     \ }
+Plug 'cespare/vim-toml'
 
-" deoplete
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-" deoplete sources
-Plug 'Shougo/neco-syntax'
-Plug 'Shougo/neco-vim'
+
 
 " NERDTree
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 
 call plug#end()
+
+set shell=/bin/sh
 
 " Plugin configuration
 " --------------------
@@ -64,25 +53,11 @@ call plug#end()
 let g:airline_powerline_fonts = 1
 let g:airline_exclued_preview = 1
 let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
-let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#languageclient#enabled = 1
-
-" deoplete
-let g:deoplete#enable_at_startup = 0
-
-call deoplete#custom#var('around', {
-  \   'mark_above': '[↑]',
-  \   'mark_below': '[↓]',
-  \   'mark_changes': '[*]',
-  \})
-
-call deoplete#custom#source('_', 'max_abbr_width', 0)
-call deoplete#custom#source('_', 'max_menu_width', 0)
-
-" LanguageClient
-let g:LanguageClient_serverCommands = { 'haskell': ['hie-wrapper'] }
-let g:LanguageClient_rootMarkers = ['*.cabal', 'stack.yaml']
-let g:LanguageClient_hoverPreview = "Auto"
+"let g:airline#extensions#branch#enabled = 1
+"let g:airline#extensions#languageclient#enabled = 1
+let g:airline#extensions#coc#enabled = 1
+let airline#extensions#coc#error_symbol = 'Error:'
+let airline#extensions#coc#warning_symbol = 'Warning:'
 
 
 " Netrw (built-in file tree browser) settings (legacy)
@@ -94,7 +69,7 @@ let g:netrw_browse_split=4    " open files in previous window
 " NERDTree
 let NERDTreeMinimalUI = 1     " remove extraneous UI clutter
 let NERDTreeAutoDeleteBuffer=1
-let NERDTreeQuitOnOpen = 1
+"let NERDTreeQuitOnOpen = 1
 
 " Vim-Markdown
 let g:vim_markdown_math=1     " enable LaTeX and YAML syntax extensions
@@ -109,7 +84,23 @@ let g:vim_markdown_autowrite = 1
 let g:rust_recommended_style=0
                               " default rustfmt.toml
 let g:rustfmt_options='--config-path ~/.config/rustfmt/rustfmt.toml'
-let g:rustfmt_autosave=1      " automatically run :RustFmt on saving buffer
+
+au FileType rust setlocal nosmartindent
+au FileType rust nnoremap <silent> <leader>w :RustFmt<CR>
+
+
+
+" CoC
+set updatetime=300
+set shortmess+=c
+
+autocmd CursorHold * silent call CocActionAsync('highlight')
+nnoremap <leader>R   <Plug>(coc-rename)<CR>
+nnoremap <leader>T   <Plug>(coc-type-definition)
+nnoremap <leader>R  <Plug>(coc-references)
+nnoremap <leader>D  <Plug>(coc-diagnostic-info)
+nnoremap <leader>P  <Plug>(coc-diagnostic-prev)
+nnoremap <leader>N  <Plug>(coc-diagnostic-next)
 
 
 "------------------------------------------------------------------------------
@@ -121,32 +112,27 @@ syntax enable                 " Syntax highlighting
 set termguicolors
 "colorscheme solarized         " delightful Solarized colors by Ethan Schoonover
 colorscheme NeoSolarized       " truecolor Solarized
+set background=dark            " in their dark background variation
 
-if has('nvim')
-  set background=light        " in their light background variation for neovim
-else
-  set background=dark         " and dark for vim8
-endif
-
-let sol_base03  = "#002b36"
-let sol_base02  = "#073642"
-let sol_base01  = "#586e75"
-let sol_base00  = "#657b83"
-let sol_base0   = "#839496"
-let sol_base1   = "#93a1a1"
-let sol_base2   = "#eee8d5"
-let sol_base3   = "#fdf6e3"
-let sol_yellow  = "#b58900"
-let sol_orange  = "#cb4b16"
-let sol_red     = "#dc322f"
-let sol_magenta = "#d33682"
-let sol_violet  = "#6c71c4"
-let sol_blue    = "#268bd2"
-let sol_cyan    = "#2aa198"
-let sol_green   = "#859899"
+" base03  = "#002b36", cterm = 8
+" base02  = "#073642", cterm = 0
+" base01  = "#586e75", cterm = 10
+" base00  = "#657b83", cterm = 11
+" base0   = "#839496", cterm = 12
+" base1   = "#93a1a1", cterm = 14
+" base2   = "#eee8d5", cterm = 7
+" base3   = "#fdf6e3", cterm = 15
+" yellow  = "#b58900", cterm = 3
+" orange  = "#cb4b16", cterm = 9
+" red     = "#dc322f", cterm = 1
+" magenta = "#d33682", cterm = 5
+" violet  = "#6c71c4", cterm = 13
+" blue    = "#268bd2", cterm = 4
+" cyan    = "#2aa198", cterm = 6
+" green   = "#859899", cterm = 2
 
 " Filetype options
-filetype on                   " detect filetype for syntax highlighting
+filetype on                   " detect filetype for syntax hiing
 filetype plugin on            " load filetype plugins
 filetype indent off           " but don't override my indent behavior
 
@@ -170,7 +156,7 @@ set number                    " Show line numbers
 set numberwidth=3             " Line number column is 3 characters wide
 set ruler                     " Show line/ column numbers in lower right
 set cursorline                " Highlight cursors current line
-set guicursor=n-sm-v:block,c:cCursor,n:nCursor,i-c-ci-ve:ver25,r-cr-o:hor20
+set guicursor=sm-v:hor30,n:hor30-nCursor,i-c:cCursor,i-c-ci-ve:ver25,r-cr-o:hor30
 set colorcolumn=80            " Highlight column 80
 set textwidth=80              " Lines are 80 characters long
 set wrap                      " wrap lines that go off screen
@@ -199,7 +185,7 @@ set splitright                " open new vertical splits below current split
 set swapfile                  " Even before saving, store all changes and edits
 set undofile                  " Save undos so they persist between sessions
 set backup                    " When overwriting a file, save previous version
-set directory=~/.vim/swp//    "  swap files in own directory
+set directory=~/.vim/swp//    " swap files in own directory
 set undodir=~/.vim/undodir//  " undo files in own directory
 " set backupdir=~/.vim/backup// " and backup in own directory
 
@@ -296,40 +282,72 @@ autocmd BufWritePre * let &backupext = '~' . strftime("%F_%T") . '~'
   " https://ngnghm.github.io/blog/2015/08/03/chapter-2-save-our-souls/
 
 " Search and completion options
-set hlsearch                  " Persist highlights of all matches of last search
+set hlsearch                  " Persist his of all matches of last search
 set incsearch                 " Show incremental matches when searching
 set path+=**                  " When completing, search into sub-folders
 set wildmenu                  " Show command line completion options as a menu
 set complete-=i               " Don't search included files completions
 
 " Highlights
-highlight CoqChecked ctermbg=7
-highlight CoqSent cterm=underline ctermbg=7
-exe 'hi Search cterm=italic ctermfg=Magenta gui=italic guifg=' . g:sol_magenta
-exe 'hi IncSearch cterm=italic ctermfg=Magenta ' . ' gui=italic guifg=' . sol_magenta . ' guibg=' . sol_base2
-highlight clear CursorLine    " this gives a nice effect in the line no. column
 
 if &bg == 'light'
-  exe 'hi SignColumn ctermbg=7 guibg=' . sol_base2
-  exe 'highlight Pmenu gui=bold guibg=' . sol_base2
-  exe 'highlight PmenuSel gui=bold guifg=' . sol_orange . ' guibg=' . sol_base2
-  exe 'highlight PmenuSbar guibg=' . sol_base1
+  hi SignColumn ctermbg=7 guibg=#eee8d5
+  hi Pmenu gui=bold guibg=#eee8d5
+  hi PmenuSel gui=bold guifg=#cb4b16 guibg=#eee8d5
+  hi PmenuSbar guibg=#93a1a1
+  hi PmenuThumb cterm=reverse ctermfg=12 ctermbg=8 gui=reverse guifg=#839496 guibg=#002b36
   hi clear Visual
-  exe 'highlight! Visual guibg=' . sol_base2
-  exe 'highlight! cCursor guibg=' . sol_base02
-  exe 'highlight! nCursor guibg=' . sol_base2
+  hi Visual guibg=#eee8d5
+  hi cCursor guibg=#586e75
+  hi nCursor guibg=#586e75
+  hi clear CursorLine    " this gives a nice effect in the line no. column
+  hi CursorLine guibg=#eee8d5
+  hi CursorLineNr gui=bold guibg=#fdf6e3 guifg=#cb4b16
+  hi Search    cterm=italic ctermfg=Magenta gui=italic guifg=#d33682
+  hi IncSearch cterm=italic ctermfg=Magenta gui=italic guifg=#d33682 guibg=#eee8d5
 else
-  exe 'hi SignColumn ctermbg=0 guibg=' sol_base02
+  hi SignColumn ctermbg=0 guibg= #073642
+  hi Pmenu gui=bold guifg=#93a1a1 guibg=#073642
+  hi PmenuSel gui=bold guifg=#cb4b16 guibg=#073642
+  hi PmenuSbar guibg=#cb4b16 guifg=#cb4b16
+  hi PmenuThumb ctermfg=12 ctermbg=8 gui=reverse guifg=#839496 guibg=#002b36
+  hi clear Visual
+  hi Visual guibg=#073642
+  hi cCursor guibg=#93a1a1
+  hi nCursor guibg=#93a1a1
+  hi clear CursorLine    " this gives a nice effect in the line no. column
+  hi CursorLine guibg=#073642
+  hi CursorLineNr gui=bold guibg=#002b36 guifg=#cb4b16
+  hi Search    cterm=italic ctermfg=Magenta gui=italic guifg=#d33682
+  hi IncSearch cterm=italic ctermfg=Magenta gui=italic guifg=#d33682 guibg=#073642
 endif
 
+" hi CoqChecked ctermbg=7
+" hi CoqSent   cterm=underline ctermbg=7
 
-hi link ALEError Error
-exe 'hi Warning term=underline cterm=underline ctermfg=Yellow gui=undercurl guisp=' . sol_yellow
+hi Warning term=underline cterm=underline ctermfg=Yellow gui=undercurl guisp=#b58900
 hi link ALEWarning Warning
 hi link ALEInfo SpellCap
 
+hi Error cterm=bold ctermfg=Red  guifg=#dc322f gui=bold
+
+hi CocHintSign     ctermfg=6  guifg=#2aa198
+hi CocErrorSign    ctermfg=8  guifg=#dc322f
+hi CocInfoSign     ctermfg=3  guifg=#b58900
+hi CocWarningSign  ctermfg=9  guifg=#cb4b16
+hi CocSelectedText ctermfg=12 guifg=#839496 ctermbg=0 guibg=#073642
+
+hi CocListBgBlue    ctermfg=8  guifg=#002b36 ctermbg=4  guibg=#268bd2
+hi CocListBgCyan    ctermfg=8  guifg=#002b36 ctermbg=6  guibg=#2aa198
+hi CocListBgGreen   ctermfg=8  guifg=#002b36 ctermbg=2  guibg=#859899
+hi CocListBgMagenta ctermfg=8  guifg=#002b36 ctermbg=5  guibg=#d33682
+hi CocListBgOrange  ctermfg=8  guifg=#002b36 ctermbg=9  guibg=#cb4b16
+hi CocListBgRed     ctermfg=8  guifg=#002b36 ctermbg=1  guibg=#dc322f
+hi CocListBgWhite   ctermfg=11 guifg=#657b83 ctermbg=15 guibg=#fdf6e3
+hi CocListBgYellow  ctermbg=8  guifg=#002b36 ctermbg=3  guibg=#b58900
+
 " Misc. UI
-set lazyredraw                " Only redraw when necessary for performance
+"set lazyredraw                " Only redraw when necessary for performance
 set showmatch                 " Show matching brace when inserting closing brace
 set nofoldenable              " Disable folding
 set spelllang=en              " spellcheck using an English dictionary
@@ -338,7 +356,6 @@ set ttimeoutlen=10            " reduce delay when escaping from insert mode
 set nrformats-=octal          " e.g increment 07 to 08 with <C-A>, not 10
 set nocompatible              " turn off vi compatiblity
 set backspace=2               " allow backspacing over indent,eol, start
-set hidden                    " don't abandon buffers
 set signcolumn=yes            " always show the sign column
 
 "------------------------------------------------------------------------------
@@ -357,68 +374,59 @@ nnoremap <leader>J :wincmd J<CR>
 nnoremap <leader>K :wincmd K<CR>
 nnoremap <leader>L :wincmd L<CR>
 
-nnoremap <leader>n :noh<CR>   " Clear search highlights in Normal mode
+nnoremap <leader>n :noh<CR>   " Clear search his in Normal mode
 nnoremap <leader>= <C-W>=     " Equalize splits
 
 if has('nvim')                " terminal settings, make nvim behave like vim
   nnoremap <leader>' :10new \| :term<CR>i
   tnoremap <C-d> <C-\><C-N>:q<CR>
-  tnoremap <C-ESC> <C-\><C-N>
+  tnoremap <ESC> <C-\><C-N>
   au TermOpen * setlocal nonumber norelativenumber scl=no
 else
   nnoremap <leader>' :term<CR>
 endif
 
+inoremap <M-{> {<CR>}<Esc>[{a<CR><TAB>
+inoremap <M-l> λ
+inoremap <M-a> ∀
+inoremap <M-m> μ
+
 " Coq
-nnoremap <leader>ml :CoqStart<CR>
-nnoremap <leader>mx :CoqQuit<CR>
-nnoremap <leader>mm :CoqNext<CR>
-nnoremap <leader>m. :CoqToCursor<CR>
-nnoremap <leader>mM :CoqRewind<CR>
-nnoremap <leader>m: :CoqQuery
-nnoremap <leader>m? :CoqSet
+"nnoremap <leader>ml :CoqStart<CR>
+"nnoremap <leader>mx :CoqQuit<CR>
+"nnoremap <leader>mm :CoqNext<CR>
+"nnoremap <leader>m. :CoqToCursor<CR>
+"nnoremap <leader>mM :CoqRewind<CR>
+"nnoremap <leader>m: :CoqQuery
+"nnoremap <leader>m? :CoqSet
 
 
 nnoremap <silent> <leader>f :NERDTreeToggle<CR>
 nnoremap <silent> <leader>F :NERDTreeFocus<CR>
 nnoremap <silent> <leader>v :NERDTreeFind<CR>
 
-" custom mapping for LanguageClient
-function LC_maps()
-  if has_key(g:LanguageClient_serverCommands, &filetype)
-    nnoremap <buffer> <silent> <F5> :call LanguageClient_contextMenu()<CR>
-    nnoremap <buffer> <silent> K :call LanguageClient#textDocument_hover()<CR>
-    nnoremap <buffer> <silent> gd :call LanguageClient#textDocument_definition()<CR>
-    nnoremap <buffer> <silent> gr :call LanguageClient#textDocument_rename()<CR>
-    nnoremap <buffer> <silent> gq :call LanguageClient#textDocument_formatting()<CR>
-    nnoremap <buffer> <silent> <leader>cb :call LanguageClient#textDocument_references()<CR>
-    nnoremap <buffer> <silent> <leader>ca :call LanguageClient#textDocument_codeAction()<CR>
-    nnoremap <buffer> <silent> <leader>cs :call LanguageClient#textDocument_documentSymbol()<CR>
-    nnoremap <buffer> <silent> <leader>? :call LanguageClient#explainErrorAtPoint()<CR>
-    nnoremap <buffer> <silent> <leader>c# :call LanguageClient#debugInfo<CR>
-  endif
-endfunction
 
 " ----------------------------------------------------------------------------
 " autocommands
 " ----------------------------------------------------------------------------
 
-autocmd VimResized * :redraw! " fix resizing/redraw issues
+"autocmd VimResized * :redraw! " fix resizing/redraw issues
 
-autocmd FileType * call LC_maps()  " activate LanguageClient mapping
+" autocmd FileType * call LC_maps()  " activate LanguageClient mapping
 
 " control deoplete for each filetype
-autocmd InsertEnter *.hs call deoplete#enable()
-autocmd InsertEnter *.lhs call deoplete#enable()
-autocmd InsertEnter *.vim call deoplete#enable()
-autocmd InsertEnter *.vimrc call deoplete#enable()
-autocmd InsertEnter *.md call deoplete#disable()
+" autocmd InsertEnter *.hs call deoplete#enable()
+" autocmd InsertEnter *.lhs call deoplete#enable()
+" autocmd InsertEnter *.vim call deoplete#enable()
+" autocmd InsertEnter *.vimrc call deoplete#enable()
+" autocmd InsertEnter *.md call deoplete#disable()
 
 " NERDTee
 " open NERDTree automatically if no files specified
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-" and on opening a directory
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif"
-" and close if the only window left open is a NERDTree
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+"autocmd StdinReadPre * let s:std_in=1
+"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+"" and on opening a directory
+"autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif"
+"" and close if the only window left open is a NERDTree
+"autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+

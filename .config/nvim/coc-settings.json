@@ -1,0 +1,19 @@
+{
+//  "languageserver": {
+//    "rust": {
+//      "command": "rust-analyzer",
+//      "filetypes": ["rs"],
+//      "trace.server": "verbose"
+//    }
+
+
+  "rust-analyzer.serverPath": "/home/jcb/.nix-profile/bin/rust-analyzer",
+  "rust-analyzer.updates.channel": "nightly",
+  "coc.preferences.hoverTarget":"float",
+  "coc.preferences.colorSupport": false,
+  "coc.preferences.bracketEnterImprove": true,
+  "rust-analyzer.diagnostics.enable": true,
+  "rust-analyzer.inlayHints.chainingHints": true,
+  "rust-analyzer.inlayHints.refreshOnInsertMode": true
+
+  }
